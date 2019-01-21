@@ -41,16 +41,17 @@ public class MainActivity extends AppCompatActivity {
     MediaRecorder recorder;
     short[] CorrShort;
     byte generatedSnd[];
-    short[] Buffer=null;
+    short[] Buffer = null;
 
     boolean keepGoing = false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
-        if(ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED
-                || ActivityCompat.checkSelfPermission(getApplicationContext(),Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED){
+        if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED
+                || ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
 
-            ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.RECORD_AUDIO, Manifest.permission.WRITE_EXTERNAL_STORAGE},0);
+            ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.RECORD_AUDIO, Manifest.permission.WRITE_EXTERNAL_STORAGE}, 0);
         }
 
         super.onCreate(savedInstanceState);
@@ -87,7 +88,7 @@ public class MainActivity extends AppCompatActivity {
                 try {
                     Toast.makeText(getApplicationContext(), "녹음을 시작합니다.", Toast.LENGTH_LONG).show();
 
-                   recorder.prepare();
+                    recorder.prepare();
                     recorder.start();
                 } catch (Exception ex) {
                     Log.e("SampleAudioRecorder", "Exception : ", ex);
@@ -142,8 +143,8 @@ public class MainActivity extends AppCompatActivity {
                 player = null;
             }
         });
-        playSoundBtn.setOnClickListener(new View.OnClickListener(){
-            public void onClick(View v){
+        playSoundBtn.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
                 try {
                     Thread.sleep(1000);
                 } catch (InterruptedException e) {
@@ -184,13 +185,30 @@ public class MainActivity extends AppCompatActivity {
                 recorder.release();
                 recorder = null;
 
+                String sd = Environment.getExternalStorageDirectory().getAbsolutePath();
+                String filePath = sd + "/original.pcm";
+                FileOutputStream os = null;
+                try {
+                    os = new FileOutputStream(filePath);
+                    Toast.makeText(getApplicationContext(), "파일이 추출되었습니다2.", Toast.LENGTH_LONG).show();
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                }
+                try {
+                    byte bData[] = short2byte(Buffer);
+                    os.write(bData, 0, 2048);
+                    Toast.makeText(getApplicationContext(), "파일이 추출되었습니다3.", Toast.LENGTH_LONG).show();
+
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
                 Toast.makeText(getApplicationContext(), "녹음이 중지되었습니다.", Toast.LENGTH_LONG).show();
 
             }
         });
-        stopSoundBtn.setOnClickListener(new View.OnClickListener(){
-            public void onClick(View v){
-                keepGoing=false;
+        stopSoundBtn.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                keepGoing = false;
                 audioTrack.stop();
             }
         });
@@ -209,9 +227,10 @@ public class MainActivity extends AppCompatActivity {
 
         super.onPause();
     }
+
     void playSound() {
-        Buffer = new short[48000*2];
-        if(audioTrack != null) {
+        Buffer = new short[48000 * 2];
+        if (audioTrack != null) {
             audioTrack.release();
             audioTrack = null;
         }
@@ -222,29 +241,52 @@ public class MainActivity extends AppCompatActivity {
         audioTrack = new AudioTrack(AudioManager.STREAM_MUSIC,
                 48000, AudioFormat.CHANNEL_CONFIGURATION_MONO,
                 AudioFormat.ENCODING_PCM_16BIT, Buffer.length, AudioTrack.MODE_STATIC);
-        generatePulse(25000,48000);
-            audioTrack.write(Buffer, 0, Buffer.length);
-            audioTrack.setStereoVolume(1.0f, 1.0f);
-            audioTrack.play();
-
+        generatePulse(500, 48000);
+        audioTrack.write(Buffer, 0, Buffer.length);
+        audioTrack.setStereoVolume(1.0f, 1.0f);
+        audioTrack.play();
 
 
     }
-    void generatePulse(int freq,int SamplingFreq){
-        double omega,time;
-        int i,Index=0;
+
+    void generatePulse(int freq, int SamplingFreq) {
+        double omega, time;
+        int i, Index = 0;
         short Vout;
+        int freq2 = freq;
 
-        omega=2*Math.PI*freq;
 
-        for(i=0;i<=SamplingFreq-1;i++){
-            time=(double)i/SamplingFreq;
-            Vout =(short)(32767 * Math.sin(omega*time) );
-            Buffer[Index]=Vout;   //LEFT 저장
+        for (i = 0; i <= SamplingFreq - 1; i++) {
+           if ((1 / freq2) < (i / SamplingFreq)) {
+                freq2 += 10;
+            }
+            omega = 2 * Math.PI * freq2;
+            time = (double) i / SamplingFreq;
+            Vout = (short) (32767 * Math.sin(omega * time));
+            Buffer[Index] = Vout;   //LEFT 저장
             Index++;
-            Buffer[Index]=Vout;  //RIGHT 저장
+            Buffer[Index] = Vout;  //RIGHT 저장
             Index++;
         }
+    }
+    private byte[] short2byte(short[] sData) {
+
+        int shortArrsize = sData.length;
+
+        byte[] bytes = new byte[shortArrsize * 2];
+
+        for (int i = 0; i < shortArrsize; i++) {
+
+            bytes[i * 2] = (byte) (sData[i] & 0x00FF);
+
+            bytes[(i * 2) + 1] = (byte) (sData[i] >> 8);
+
+            sData[i] = 0;
+
+        }
+
+        return bytes;
+
     }
 
 
