@@ -229,7 +229,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     void playSound() {
-        Buffer = new short[48000 * 2];
+        Buffer = new short[48000 * 2+2];
         if (audioTrack != null) {
             audioTrack.release();
             audioTrack = null;
@@ -268,6 +268,9 @@ public class MainActivity extends AppCompatActivity {
             Buffer[Index] = Vout;  //RIGHT 저장
             Index++;
         }
+            Buffer[Index] = (short)freq;
+            Index++;
+            Buffer[Index] = (short)freq2;
     }
     private byte[] short2byte(short[] sData) {
 
