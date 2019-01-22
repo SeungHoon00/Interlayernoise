@@ -42,6 +42,8 @@ public class MainActivity extends AppCompatActivity {
     short[] CorrShort;
     byte generatedSnd[];
     short[] Buffer = null;
+    short[] Buffer_original = null;
+
 
     boolean keepGoing = false;
 
@@ -166,12 +168,12 @@ public class MainActivity extends AppCompatActivity {
 
                 try {
                     Toast.makeText(getApplicationContext(), "녹음을 시작합니다.", Toast.LENGTH_LONG).show();
-
                     recorder.prepare();
                     recorder.start();
                 } catch (Exception ex) {
                     Log.e("SampleAudioRecorder", "Exception : ", ex);
                 }
+
                 playSound();
                 try {
                     Thread.sleep(2000);
@@ -195,7 +197,7 @@ public class MainActivity extends AppCompatActivity {
                     e.printStackTrace();
                 }
                 try {
-                    byte bData[] = short2byte(Buffer);
+                    byte bData[] = short2byte(Buffer_original);
                     os.write(bData, 0, 2048);
                     Toast.makeText(getApplicationContext(), "파일이 추출되었습니다3.", Toast.LENGTH_LONG).show();
 
@@ -230,6 +232,7 @@ public class MainActivity extends AppCompatActivity {
 
     void playSound() {
         Buffer = new short[48000 * 2+2];
+        Buffer_original = new short[48000*2];
         if (audioTrack != null) {
             audioTrack.release();
             audioTrack = null;
@@ -251,18 +254,25 @@ public class MainActivity extends AppCompatActivity {
 
     void generatePulse(int freq, int SamplingFreq) {
         double omega, time;
-        int i, Index = 0;
+        int i, Index = 0, Index2=0;
         short Vout;
         int freq2 = freq;
 
 
         for (i = 0; i <= SamplingFreq - 1; i++) {
-           if ((1 / freq2) < (i / SamplingFreq)) {
+           /*if ((1 / freq2) < (i / SamplingFreq)) {
                 freq2 += 10;
-            }
+            }*/
+
             omega = 2 * Math.PI * freq2;
             time = (double) i / SamplingFreq;
             Vout = (short) (32767 * Math.sin(omega * time));
+            if(1/freq2>i/SamplingFreq) {
+                Buffer_original[Index2] = Vout;   //LEFT 저장
+                Index2++;
+                Buffer_original[Index2] = Vout;  //RIGHT 저장
+                Index2++;
+            }
             Buffer[Index] = Vout;   //LEFT 저장
             Index++;
             Buffer[Index] = Vout;  //RIGHT 저장
