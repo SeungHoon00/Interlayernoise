@@ -2,6 +2,7 @@ package com.example.dlsgh.myapplication3;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.media.AudioFormat;
 import android.media.AudioManager;
 import android.media.AudioTrack;
@@ -9,33 +10,30 @@ import android.media.MediaPlayer;
 import android.media.MediaRecorder;
 import android.os.Bundle;
 import android.os.Environment;
+import android.provider.MediaStore;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
+import android.webkit.MimeTypeMap;
 import android.widget.Button;
 import android.widget.Toast;
 
+import java.io.FileDescriptor;
+import java.io.IOException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.nio.Buffer;
-
-/**
- * 음성 녹음을 하는 방법에 대해 알 수 있습니다.
- *
- * @author Mike
- *
- */
 
 
 public class MainActivity extends AppCompatActivity {
 
 
     private static String RECORDED_FILE;
+    private static String PLAYERDED_FILE;
     AudioTrack audioTrack;
     MediaPlayer player;
     MediaRecorder recorder;
@@ -60,8 +58,11 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         File sdcard = Environment.getExternalStorageDirectory();
+
         File file = new File(sdcard, "recorded.mp4");
+        File file2 = new File(sdcard, "test.wav");
         RECORDED_FILE = file.getAbsolutePath();
+        PLAYERDED_FILE = file2.getAbsolutePath();
 
         Button recordBtn = (Button) findViewById(R.id.recordBtn);
         Button recordStopBtn = (Button) findViewById(R.id.recordStopBtn);
@@ -147,6 +148,7 @@ public class MainActivity extends AppCompatActivity {
         });
         playSoundBtn.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
+                FileInputStream fis = null;
                 try {
                     Thread.sleep(1000);
                 } catch (InterruptedException e) {
@@ -157,7 +159,12 @@ public class MainActivity extends AppCompatActivity {
                     recorder.release();
                     recorder = null;
                 }
-
+                if (player != null) {
+                    player.stop();
+                    player.release();
+                    player = null;
+                }
+                player = new MediaPlayer();
                 recorder = new MediaRecorder();
 
                 recorder.setAudioSource(MediaRecorder.AudioSource.MIC);
@@ -173,8 +180,17 @@ public class MainActivity extends AppCompatActivity {
                 } catch (Exception ex) {
                     Log.e("SampleAudioRecorder", "Exception : ", ex);
                 }
+                try {
+                    fis = new FileInputStream(PLAYERDED_FILE);
+                    FileDescriptor fd = fis.getFD();
+                    player.setDataSource(fd);
+                    player.prepare();
+                    player.start();
+                } catch(IOException  e){
+                    System.out.println(e.toString());
+                    Log.e("sgaaweahha", "Exception : ", e);
+                }
 
-                playSound();
                 try {
                     Thread.sleep(2000);
                 } catch (InterruptedException e) {
@@ -187,23 +203,6 @@ public class MainActivity extends AppCompatActivity {
                 recorder.release();
                 recorder = null;
 
-                String sd = Environment.getExternalStorageDirectory().getAbsolutePath();
-                String filePath = sd + "/original.pcm";
-                FileOutputStream os = null;
-                try {
-                    os = new FileOutputStream(filePath);
-                    Toast.makeText(getApplicationContext(), "파일이 추출되었습니다2.", Toast.LENGTH_LONG).show();
-                } catch (FileNotFoundException e) {
-                    e.printStackTrace();
-                }
-                try {
-                    byte bData[] = short2byte(Buffer_original);
-                    os.write(bData, 0, 2048);
-                    Toast.makeText(getApplicationContext(), "파일이 추출되었습니다3.", Toast.LENGTH_LONG).show();
-
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
                 Toast.makeText(getApplicationContext(), "녹음이 중지되었습니다.", Toast.LENGTH_LONG).show();
 
             }
@@ -244,7 +243,7 @@ public class MainActivity extends AppCompatActivity {
         audioTrack = new AudioTrack(AudioManager.STREAM_MUSIC,
                 48000, AudioFormat.CHANNEL_CONFIGURATION_MONO,
                 AudioFormat.ENCODING_PCM_16BIT, Buffer.length, AudioTrack.MODE_STATIC);
-        generatePulse(500, 48000);
+        generatePulse(1000, 48000);
         audioTrack.write(Buffer, 0, Buffer.length);
         audioTrack.setStereoVolume(1.0f, 1.0f);
         audioTrack.play();
