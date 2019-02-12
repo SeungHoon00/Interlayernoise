@@ -2,6 +2,7 @@ package com.example.dlsgh.myapplication3;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
+import android.content.res.AssetManager;
 import android.database.Cursor;
 import android.media.AudioFormat;
 import android.media.AudioManager;
@@ -60,7 +61,7 @@ public class MainActivity extends AppCompatActivity {
         File sdcard = Environment.getExternalStorageDirectory();
 
         File file = new File(sdcard, "recorded.mp4");
-        File file2 = new File(sdcard, "test.wav");
+        File file2 = new File(sdcard, "test.mp3");
         RECORDED_FILE = file.getAbsolutePath();
         PLAYERDED_FILE = file2.getAbsolutePath();
 
@@ -149,6 +150,7 @@ public class MainActivity extends AppCompatActivity {
         playSoundBtn.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 FileInputStream fis = null;
+                AssetManager am;
                 try {
                     Thread.sleep(1000);
                 } catch (InterruptedException e) {
@@ -181,8 +183,11 @@ public class MainActivity extends AppCompatActivity {
                     Log.e("SampleAudioRecorder", "Exception : ", ex);
                 }
                 try {
-                    fis = new FileInputStream(PLAYERDED_FILE);
-                    FileDescriptor fd = fis.getFD();
+                   /* fis = new FileInputStream(PLAYERDED_FILE);
+                    FileDescriptor fd = fis.getFD();*/
+
+                   am = ctx.getAssets();
+
                     player.setDataSource(fd);
                     player.prepare();
                     player.start();
