@@ -72,47 +72,6 @@ public class MainActivity extends AppCompatActivity {
         Button playSoundBtn = (Button) findViewById(R.id.PlaysoundBtn);
         Button stopSoundBtn = (Button) findViewById(R.id.StopsoundBtn);
 
-
-        recordBtn.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                if (recorder != null) {
-                    recorder.stop();
-                    recorder.release();
-                    recorder = null;
-                }
-
-                recorder = new MediaRecorder();
-
-                recorder.setAudioSource(MediaRecorder.AudioSource.MIC);
-                recorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
-                recorder.setAudioEncoder(MediaRecorder.AudioEncoder.DEFAULT);
-
-                recorder.setOutputFile(RECORDED_FILE);
-
-                try {
-                    Toast.makeText(getApplicationContext(), "녹음을 시작합니다.", Toast.LENGTH_LONG).show();
-
-                    recorder.prepare();
-                    recorder.start();
-                } catch (Exception ex) {
-                    Log.e("SampleAudioRecorder", "Exception : ", ex);
-                }
-            }
-        });
-
-        recordStopBtn.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                if (recorder == null)
-                    return;
-
-                recorder.stop();
-                recorder.release();
-                recorder = null;
-
-                Toast.makeText(getApplicationContext(), "녹음이 중지되었습니다.", Toast.LENGTH_LONG).show();
-            }
-        });
-
         playBtn.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
 
@@ -161,19 +120,22 @@ public class MainActivity extends AppCompatActivity {
                     recorder.release();
                     recorder = null;
                 }
+
                 if (player != null) {
                     player.stop();
                     player.release();
                     player = null;
                 }
-                player = new MediaPlayer();
                 recorder = new MediaRecorder();
+                player = new MediaPlayer();
 
                 recorder.setAudioSource(MediaRecorder.AudioSource.MIC);
                 recorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
                 recorder.setAudioEncoder(MediaRecorder.AudioEncoder.DEFAULT);
 
                 recorder.setOutputFile(RECORDED_FILE);
+
+
 
                 try {
                     Toast.makeText(getApplicationContext(), "녹음을 시작합니다.", Toast.LENGTH_LONG).show();
@@ -183,16 +145,18 @@ public class MainActivity extends AppCompatActivity {
                     Log.e("SampleAudioRecorder", "Exception : ", ex);
                 }
                 try {
-                   /* fis = new FileInputStream(PLAYERDED_FILE);
-                    FileDescriptor fd = fis.getFD();*/
-
-                   am = ctx.getAssets();
+                    Thread.sleep(500);
+                } catch (InterruptedException e) {
+                    // TODO Auto-generated catch block
+                }
+                try {
+                   fis = new FileInputStream(PLAYERDED_FILE);
+                    FileDescriptor fd = fis.getFD();
 
                     player.setDataSource(fd);
                     player.prepare();
                     player.start();
                 } catch(IOException  e){
-                    System.out.println(e.toString());
                     Log.e("sgaaweahha", "Exception : ", e);
                 }
 
