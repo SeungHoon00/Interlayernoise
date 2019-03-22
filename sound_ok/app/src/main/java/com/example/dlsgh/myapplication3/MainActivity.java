@@ -64,12 +64,15 @@ public class MainActivity extends AppCompatActivity {
 
         File sdcard = Environment.getExternalStorageDirectory();
 
+<<<<<<< HEAD
         File file = new File(sdcard, "recorded.wav");
+=======
+        File file = new File(sdcard, "recorded.mp4");
         File file2 = new File(sdcard, "test.wav");
         RECORDED_FILE = file.getAbsolutePath();
         PLAYERDED_FILE = file2.getAbsolutePath();
 
-        Button recordBtn = (Button) findViewById(R.id.recordBtn);
+        //Button recordBtn = (Button) findViewById(R.id.recordBtn);
         Button recordStopBtn = (Button) findViewById(R.id.recordStopBtn);
         Button playBtn = (Button) findViewById(R.id.playBtn);
         Button playStopBtn = (Button) findViewById(R.id.playStopBtn);
