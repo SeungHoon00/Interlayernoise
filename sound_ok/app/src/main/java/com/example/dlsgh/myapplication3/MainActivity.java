@@ -1,6 +1,7 @@
 package com.example.dlsgh.myapplication3;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.pm.PackageManager;
 import android.content.res.AssetManager;
 import android.database.Cursor;
@@ -30,6 +31,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.nio.Buffer;
+import android.media.AudioManager;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -64,9 +66,9 @@ public class MainActivity extends AppCompatActivity {
 
         File sdcard = Environment.getExternalStorageDirectory();
 
-<<<<<<< HEAD
-        File file = new File(sdcard, "recorded.wav");
-=======
+
+       // File file = new File(sdcard, "recorded.wav");
+
         File file = new File(sdcard, "recorded.mp4");
         File file2 = new File(sdcard, "test.wav");
         RECORDED_FILE = file.getAbsolutePath();
@@ -264,9 +266,17 @@ public class MainActivity extends AppCompatActivity {
                 AudioFormat.ENCODING_PCM_16BIT, Buffer.length, AudioTrack.MODE_STATIC);
         generatePulse(500, 48000);
         audioTrack.write(Buffer, 0, Buffer.length);
-        audioTrack.setStereoVolume(1.0f, 1.0f);
+        for(int i=1; i<10; i++) {
+            AudioManager am = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+            am.setStreamVolume(AudioManager.STREAM_RING, (int)(am.getStreamMaxVolume(AudioManager.STREAM_RING)*(i/10)),AudioManager.FLAG_PLAY_SOUND);
+        }
         audioTrack.play();
-    }
+        for(int i=100; i>0; i--) {
+            AudioManager am = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+            am.setStreamVolume(AudioManager.STREAM_RING, (int)(am.getStreamMaxVolume(AudioManager.STREAM_RING)*(i/10)),AudioManager.FLAG_PLAY_SOUND);
+
+        }
+           }
     void generatePulse(int freq, int SamplingFreq) {
         double omega, time;
         int i, Index = 0, Index2=0;
