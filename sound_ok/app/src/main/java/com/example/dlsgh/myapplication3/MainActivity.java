@@ -67,9 +67,9 @@ public class MainActivity extends AppCompatActivity {
         File sdcard = Environment.getExternalStorageDirectory();
 
 
-       // File file = new File(sdcard, "recorded.wav");
-
-        File file = new File(sdcard, "recorded.mp4");
+      // File file = new File(sdcard, "recorded.wav");
+       // File file2 = new File(sdcard, "test.mp3");
+        File file = new File(sdcard, "recorded.mp3");
         File file2 = new File(sdcard, "test.wav");
         RECORDED_FILE = file.getAbsolutePath();
         PLAYERDED_FILE = file2.getAbsolutePath();
@@ -118,7 +118,7 @@ public class MainActivity extends AppCompatActivity {
         playSoundBtn.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 FileInputStream fis = null;
-                AssetManager am;
+                //AssetManager am;
                 try {
                     Thread.sleep(1000);
                 } catch (InterruptedException e) {
@@ -168,12 +168,15 @@ public class MainActivity extends AppCompatActivity {
                 } catch(IOException  e){
                     Log.e("sgaaweahha", "Exception : ", e);
                 }*/
+
                 playSound();
-                try {
-                    Thread.sleep(2000);
+                //audioTrack.setVolume(AudioTrack.getMaxVolume()*0.5f);
+                /*try {
+                    Thread.sleep(100000);
                 } catch (InterruptedException e) {
                     // TODO Auto-generated catch block
-                }
+                }*/
+
                 if (recorder == null)
                     return;
 
@@ -230,16 +233,17 @@ public class MainActivity extends AppCompatActivity {
 
         audioTrack = new AudioTrack(AudioManager.STREAM_MUSIC,
                 48000, AudioFormat.CHANNEL_CONFIGURATION_MONO,
-                AudioFormat.ENCODING_PCM_16BIT, minSize, AudioTrack.MODE_STATIC);
+                AudioFormat.ENCODING_PCM_16BIT, 48000*40+2, AudioTrack.MODE_STATIC);
 
         try {
-            music = new byte[100000];
+            music = new byte[48000*40+2];
             is = new FileInputStream(PLAYERDED_FILE);
             dis = new DataInputStream(is);
-            while ((count = dis.read(music, 0, 100000)) > -1);
+            while ((count = dis.read(music, 0, 48000*40+2)) > -1);
             {
-                audioTrack.write(music, 0, 100000);
+                audioTrack.write(music, 0, 48000*40+2);
             }
+
             //audioTrack.stop();
             //audioTrack.release();
         }
@@ -248,7 +252,19 @@ public class MainActivity extends AppCompatActivity {
             e.printStackTrace();
         }
 
+
+        //AudioManager am = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+        //am.setStreamVolume(AudioManager.STREAM_MUSIC, (int)(am.getStreamMaxVolume(AudioManager.STREAM_MUSIC)*(7/10)),AudioManager.FLAG_PLAY_SOUND);
+        //audioTrack.setPlaybackHeadPosition(100);
         audioTrack.play();
+        //audioTrack.setPlaybackRate(88200);
+
+               /*
+        for(int q=100; q>0; q--) {
+            AudioManager am = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+            am.setStreamVolume(AudioManager.STREAM_RING, (int)(am.getStreamMaxVolume(AudioManager.STREAM_RING)*(q/10)),AudioManager.FLAG_PLAY_SOUND);
+
+        }*/
     }
     void playSound2() {
         Buffer = new short[48000 * 2+2];
@@ -259,23 +275,17 @@ public class MainActivity extends AppCompatActivity {
         }
 
         int minSize = AudioTrack.getMinBufferSize(48000,
-                AudioFormat.CHANNEL_CONFIGURATION_MONO,
+                AudioFormat.CHANNEL_OUT_MONO,
                 AudioFormat.ENCODING_PCM_16BIT);
         audioTrack = new AudioTrack(AudioManager.STREAM_MUSIC,
-                48000, AudioFormat.CHANNEL_CONFIGURATION_MONO,
+                48000, AudioFormat.CHANNEL_OUT_MONO,
                 AudioFormat.ENCODING_PCM_16BIT, Buffer.length, AudioTrack.MODE_STATIC);
         generatePulse(500, 48000);
-        audioTrack.write(Buffer, 0, Buffer.length);
-        for(int i=1; i<10; i++) {
-            AudioManager am = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
-            am.setStreamVolume(AudioManager.STREAM_RING, (int)(am.getStreamMaxVolume(AudioManager.STREAM_RING)*(i/10)),AudioManager.FLAG_PLAY_SOUND);
-        }
-        audioTrack.play();
-        for(int i=100; i>0; i--) {
-            AudioManager am = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
-            am.setStreamVolume(AudioManager.STREAM_RING, (int)(am.getStreamMaxVolume(AudioManager.STREAM_RING)*(i/10)),AudioManager.FLAG_PLAY_SOUND);
 
-        }
+        audioTrack.write(Buffer, 0, Buffer.length);
+
+        audioTrack.play();
+
            }
     void generatePulse(int freq, int SamplingFreq) {
         double omega, time;
@@ -326,6 +336,5 @@ public class MainActivity extends AppCompatActivity {
         return bytes;
 
     }
-
 
 }
