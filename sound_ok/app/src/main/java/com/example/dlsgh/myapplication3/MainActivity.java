@@ -171,11 +171,11 @@ public class MainActivity extends AppCompatActivity {
 
                 playSound();
                 //audioTrack.setVolume(AudioTrack.getMaxVolume()*0.5f);
-                /*try {
-                    Thread.sleep(100000);
+                try {
+                    Thread.sleep(11000);
                 } catch (InterruptedException e) {
                     // TODO Auto-generated catch block
-                }*/
+                }
 
                 if (recorder == null)
                     return;
