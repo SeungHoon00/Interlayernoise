@@ -20,6 +20,7 @@ import android.util.Log;
 import android.view.View;
 import android.webkit.MimeTypeMap;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import java.io.DataInputStream;
@@ -52,6 +53,9 @@ public class MainActivity extends AppCompatActivity {
 
     boolean keepGoing = false;
 
+    private EditText etNum = null;
+    private EditText etStart = null;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -64,130 +68,120 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        File sdcard = Environment.getExternalStorageDirectory();
+        etNum = (EditText) findViewById(R.id.Num_of_Records);
+        etStart = (EditText) findViewById(R.id.StartIndex);
+        //File sdcard = Environment.getExternalStorageDirectory();
 
-
-      // File file = new File(sdcard, "recorded.wav");
-       // File file2 = new File(sdcard, "test.mp3");
-        File file = new File(sdcard, "recorded.mp3");
-        File file2 = new File(sdcard, "test.wav");
-        RECORDED_FILE = file.getAbsolutePath();
-        PLAYERDED_FILE = file2.getAbsolutePath();
-
-        //Button recordBtn = (Button) findViewById(R.id.recordBtn);
-        Button recordStopBtn = (Button) findViewById(R.id.recordStopBtn);
-        Button playBtn = (Button) findViewById(R.id.playBtn);
-        Button playStopBtn = (Button) findViewById(R.id.playStopBtn);
         Button playSoundBtn = (Button) findViewById(R.id.PlaysoundBtn);
-        Button stopSoundBtn = (Button) findViewById(R.id.StopsoundBtn);
 
-        playBtn.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-
-                if (player != null) {
-                    player.stop();
-                    player.release();
-                    player = null;
-                }
-
-                Toast.makeText(getApplicationContext(), "녹음된 파일을 재생합니다.", Toast.LENGTH_LONG).show();
-                try {
-                    player = new MediaPlayer();
-
-                    player.setDataSource(RECORDED_FILE);
-                    player.prepare();
-                    player.start();
-                } catch (Exception e) {
-                    Log.e("SampleAudioRecorder", "Audio play failed.", e);
-                }
-            }
-        });
-
-
-        playStopBtn.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                if (player == null)
-                    return;
-                Toast.makeText(getApplicationContext(), "재생이 중지되었습니다.", Toast.LENGTH_LONG).show();
-
-                player.stop();
-                player.release();
-                player = null;
-            }
-        });
         playSoundBtn.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
+            public void onClick(View v) {   // 소리재생, 녹음버튼///////////////////
                 FileInputStream fis = null;
                 //AssetManager am;
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                    // TODO Auto-generated catch block
-                }
-                if (recorder != null) {
+                String zeros;
+                int index;
+                int len = 1;    // 자릿수
+                boolean flag = true;
+                int startIndex = Integer.parseInt(etStart.getText().toString());    // 시작 인덱스
+                int iteration = Integer.parseInt(etNum.getText().toString());   // 원하는 녹음 파일 수
+
+                File sdcard = Environment.getExternalStorageDirectory();
+                File file2 = new File(sdcard, "sample.mp3"); // change name part
+                PLAYERDED_FILE = file2.getAbsolutePath();
+
+                for(int i = 0; i < iteration; i++) {    // iteration 만큼 녹음
+                    index = startIndex;
+                    zeros = "";
+                    while(flag) {   // 자릿수 확인
+                        if( (index / 10) != 0 ) {
+                            index /= 10;
+                            len++;
+                        }
+                        else
+                            break;
+                    }
+
+                    for(int dx = 0; dx < 6 - len; dx++) {   // 자릿수에 따라 앞에 0 붙이기, default 는 백만 단위
+                        zeros += "0";
+                    }
+
+                    String file_num = zeros + String.valueOf(startIndex);
+                    startIndex += 1;
+                    File file = new File(sdcard, file_num + ".mp3");
+
+                    RECORDED_FILE = file.getAbsolutePath();
+
+
+                    try {
+                        Thread.sleep(1000);
+                    } catch (InterruptedException e) {
+                        // TODO Auto-generated catch block
+                    }
+                    if (recorder != null) {
+                        recorder.stop();
+                        recorder.release();
+                        recorder = null;
+                    }
+
+                    if (player != null) {
+                        player.stop();
+                        player.release();
+                        player = null;
+                    }
+                    recorder = new MediaRecorder();
+                    player = new MediaPlayer();
+
+                    recorder.setAudioSamplingRate(48000);
+                    recorder.setAudioEncodingBitRate(384000);
+                    recorder.setAudioSource(MediaRecorder.AudioSource.CAMCORDER);
+                    recorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
+                    recorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
+
+                    recorder.setOutputFile(RECORDED_FILE);
+
+                    try {
+                        Toast.makeText(getApplicationContext(), "녹음을 시작합니다.", Toast.LENGTH_LONG).show();
+                        recorder.prepare();
+                        recorder.start();
+                    } catch (Exception ex) {
+                        Log.e("SampleAudioRecorder", "Exception : ", ex);
+                    }
+                    try {
+                        Thread.sleep(500);
+                    } catch (InterruptedException e) {
+                        // TODO Auto-generated catch block
+                    }
+                    /*try {
+                        fis = new FileInputStream(PLAYERDED_FILE);
+                        FileDescriptor fd = fis.getFD();
+
+                        player.setDataSource(fd);
+                        player.prepare();
+                        player.start();
+                    } catch(IOException  e){
+                        Log.e("sgaaweahha", "Exception : ", e);
+                    }*/
+
+                    playSound();
+                    //audioTrack.setVolume(AudioTrack.getMaxVolume()*0.5f);
+                    try {
+                        Thread.sleep(11000);
+                    } catch (InterruptedException e) {
+                        // TODO Auto-generated catch block
+                    }
+
+                    if (recorder == null)
+                        return;
+
                     recorder.stop();
                     recorder.release();
                     recorder = null;
+
+                    Toast.makeText(getApplicationContext(), "녹음이 중지되었습니다.", Toast.LENGTH_LONG).show();
                 }
-
-                if (player != null) {
-                    player.stop();
-                    player.release();
-                    player = null;
-                }
-                recorder = new MediaRecorder();
-                player = new MediaPlayer();
-
-                recorder.setAudioSamplingRate(48000);
-                recorder.setAudioEncodingBitRate(384000);
-                recorder.setAudioSource(MediaRecorder.AudioSource.CAMCORDER);
-                recorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
-                recorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
-
-                recorder.setOutputFile(RECORDED_FILE);
-
-                try {
-                    Toast.makeText(getApplicationContext(), "녹음을 시작합니다.", Toast.LENGTH_LONG).show();
-                    recorder.prepare();
-                    recorder.start();
-                } catch (Exception ex) {
-                    Log.e("SampleAudioRecorder", "Exception : ", ex);
-                }
-                try {
-                    Thread.sleep(500);
-                } catch (InterruptedException e) {
-                    // TODO Auto-generated catch block
-                }
-                /*try {
-                   fis = new FileInputStream(PLAYERDED_FILE);
-                    FileDescriptor fd = fis.getFD();
-
-                    player.setDataSource(fd);
-                    player.prepare();
-                    player.start();
-                } catch(IOException  e){
-                    Log.e("sgaaweahha", "Exception : ", e);
-                }*/
-
-                playSound();
-                //audioTrack.setVolume(AudioTrack.getMaxVolume()*0.5f);
-                try {
-                    Thread.sleep(11000);
-                } catch (InterruptedException e) {
-                    // TODO Auto-generated catch block
-                }
-
-                if (recorder == null)
-                    return;
-
-                recorder.stop();
-                recorder.release();
-                recorder = null;
-
-                Toast.makeText(getApplicationContext(), "녹음이 중지되었습니다.", Toast.LENGTH_LONG).show();
-
             }
         });
+        /*
         stopSoundBtn.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 keepGoing = false;
@@ -199,7 +193,9 @@ public class MainActivity extends AppCompatActivity {
                         AudioFormat.ENCODING_PCM_16BIT, minSize, AudioTrack.MODE_STATIC);
                 audioTrack.play();
             }
-        });
+        }); */
+
+
     }
 
     protected void onPause() {
@@ -286,7 +282,7 @@ public class MainActivity extends AppCompatActivity {
 
         audioTrack.play();
 
-           }
+    }
     void generatePulse(int freq, int SamplingFreq) {
         double omega, time;
         int i, Index = 0, Index2=0;
@@ -313,9 +309,9 @@ public class MainActivity extends AppCompatActivity {
             Buffer[Index] = Vout;  //RIGHT 저장
             Index++;
         }
-            Buffer[Index] = (short)freq;
-            Index++;
-            Buffer[Index] = (short)freq2;
+        Buffer[Index] = (short)freq;
+        Index++;
+        Buffer[Index] = (short)freq2;
     }
     private byte[] short2byte(short[] sData) {
 
