@@ -80,19 +80,19 @@ public class MainActivity extends AppCompatActivity {
                 //AssetManager am;
                 String zeros;
                 int index;
-                int len = 1;    // 자릿수
-                boolean flag = true;
+                int len;    // 자릿수
                 int startIndex = Integer.parseInt(etStart.getText().toString());    // 시작 인덱스
                 int iteration = Integer.parseInt(etNum.getText().toString());   // 원하는 녹음 파일 수
 
                 File sdcard = Environment.getExternalStorageDirectory();
-                File file2 = new File(sdcard, "sample.mp3"); // change name part
+                File file2 = new File(sdcard, "sample.wav"); // change name part
                 PLAYERDED_FILE = file2.getAbsolutePath();
 
                 for(int i = 0; i < iteration; i++) {    // iteration 만큼 녹음
                     index = startIndex;
                     zeros = "";
-                    while(flag) {   // 자릿수 확인
+                    len = 1;
+                    while( true ) {   // 자릿수 확인
                         if( (index / 10) != 0 ) {
                             index /= 10;
                             len++;
