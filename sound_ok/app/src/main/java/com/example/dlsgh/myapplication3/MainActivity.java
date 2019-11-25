@@ -109,7 +109,7 @@ public class MainActivity extends AppCompatActivity {
 
                     String file_num = zeros + String.valueOf(startIndex);
                     startIndex += 1;
-                    File file = new File(sdcard, file_num + ".mp3");
+                    File file = new File(sdcard, file_num + ".wav");
 
                     RECORDED_FILE = file.getAbsolutePath();
 
