@@ -134,7 +134,7 @@ public class MainActivity extends AppCompatActivity {
                     player = new MediaPlayer();
 
                     recorder.setAudioSamplingRate(48000);
-                    recorder.setAudioEncodingBitRate(384000);
+                    recorder.setAudioEncodingBitRate(128000);
                     recorder.setAudioSource(MediaRecorder.AudioSource.CAMCORDER);
                     recorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
                     recorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
